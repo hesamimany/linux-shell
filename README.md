@@ -64,7 +64,7 @@ Counts number of lines in the given file
 ### tenLine()
 
 ```bash
-tl file add
+tl fileadd
 ```
 
 Prints first ten line in the given file
