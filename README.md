@@ -44,3 +44,32 @@ hr fileadd
 ```
 
 Prints the most repeated word in the given file
+
+### nonComment()
+
+```bash
+nc fileadd
+```
+
+Prints lines which do not start with # in the given file
+
+### lineCounter()
+
+```bash
+lc fileadd
+```
+
+Counts number of lines in the given file
+
+### tenLine()
+
+```bash
+tl file add
+```
+
+Prints first ten line in the given file
+
+## Authors
+
+- Ghazale Chakane
+- Mohammad Hesam Imani
