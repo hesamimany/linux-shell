@@ -96,7 +96,23 @@ void rmSpace(){
 void nonComment(){
 
 }
-void lineCounter(){
+void lineCounter(char *add){
+	FILE *fp;
+	int count = 1;
+	char c;
+	fp = fopen(add, "r");
+	if (fp == NULL)
+	{
+		printf("Could not open file");
+		return 0;
+	}
+
+	for (c = getc(fp); c != EOF; c = getc(fp))
+		if (c == '\n')
+			count = count + 1;
+
+	fclose(fp);
+	printf("The file has %d lines\n ", count);
 
 }
 void tenLine(){
