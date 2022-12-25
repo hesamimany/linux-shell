@@ -7,6 +7,8 @@
 #include<readline/readline.h>
 #include<readline/history.h>
 
+int cdflag = 0;
+
 #define MAXSTRINGSIZE 1000
 #define MAXSTRINGARRAYSIZE 10
 
@@ -151,43 +153,52 @@ void tenLine(char* add){
     return;
 }
 
-int checkCommand(){
-
+int checkCommand(char* command){ // return 1 if command is part of our commands
+	if(strcmp(command,"fw") || strcmp(command,"hr") || strcmp(command,"rs")
+	|| strcmp(command,"nc") || strcmp(command,"lc") || strcmp(command,"tl")
+	|| strcmp(command,"cd")){
+		return 1;
+	} else return 0;
 }
 
 void execCommand(char** parsed){
-	int check = checkCommand();
+	int check = checkCommand(parsed[0]);
 	
 	pid_t pid = fork();
 	printf("after fork, %d, %s ",pid,parsed[0]);
 	if (pid == -1) {
 		printf("\nFailed forking child..");
 		return;
-	} else if(pid == 0 && check ==1){
+	} else if(pid == 0 && check){
 		
-		if(strcmp(parsed[0],"fw")){
+		if(strcmp(parsed[0], "fw")){
 			firstWord(parsed[1]);
-		} else if(strcmp(parsed[0],"hr")){
+		} else if(strcmp(parsed[0], "hr")){
 			highRepeat(parsed[1]);
-		} else if(strcmp(parsed[0],"rmSpace")){
+		} else if(strcmp(parsed[0], "rmSpace")){
 			
-		} else if(strcmp(parsed[0],"nc")){
+		} else if(strcmp(parsed[0], "nc")){
 			nonComment(parsed[1]);
-		} else if(strcmp(parsed[0],"lc")){
+		} else if(strcmp(parsed[0], "lc")){
 			lineCounter(parsed[1]);
-		} else if(strcmp(parsed[0],"tl")){
+		} else if(strcmp(parsed[0], "tl")){
 			tenLine(parsed[1]);
+		} else if(strcmp(parsed[0], "cd")){
+			cdflag = 1;
 		}
 		exit(0);
-	} else if(pid == 0 && check!=1){
+	} else if (pid == 0 && !check){
 		int status = execvp(parsed[0], parsed);
 		if (status < 0) {
 			printf("\nCould not execute command..");
 		}
 		exit(0);
 	} else {
-		printf("before WAIT, %d ",pid);
 		wait(NULL);
+		if(cdflag){
+			chdir(parsed[1]);
+			cdflag = 0;
+		}
 		return;
 	}
 }
