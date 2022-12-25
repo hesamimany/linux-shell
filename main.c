@@ -62,12 +62,9 @@ void highRepeat(char *add){
 			
 			if(line[k] != ' ' && line[k] != '\n' && line[k] != ',' && line[k] != '.' ){
 				words[i][j++] = tolower(line[k]);
-			}
-			else{
+			}else{
 				words[i][j] = '\0';
-				
 				i++;
-			
 				j = 0;
 			}
 		}
@@ -101,8 +98,7 @@ void lineCounter(char *add){
 	int count = 1;
 	char c;
 	fp = fopen(add, "r");
-	if (fp == NULL)
-	{
+	if (fp == NULL){
 		printf("Could not open file");
 		return 0;
 	}
@@ -141,8 +137,8 @@ void execCommand(char** parsed){
 			
 		} else if(strcmp(parsed[0],"nonComment")){
 			
-		} else if(strcmp(parsed[0],"lineCounter")){
-			
+		} else if(strcmp(parsed[0],"lc")){
+			lineCounter(parsed[1]);
 		} else if(strcmp(parsed[0],"tenLine")){
 
 		}
@@ -162,7 +158,6 @@ void execCommand(char** parsed){
 
 int takeInput(char* str){
 	char* buf;
-
 	buf = readline("\n>>> ");
 	if (strlen(buf) != 0) {
 		add_history(buf);
@@ -175,9 +170,7 @@ int takeInput(char* str){
 
 int processString(char* string, char** parsedString){
 	parseSpace(string,parsedString);
-	//printf("before exec ");
 	execCommand(parsedString);
-
 }
 
 int main(){
