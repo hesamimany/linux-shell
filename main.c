@@ -33,7 +33,8 @@ void firstWord(char* add){
 	char word[30];
 	fp = fopen(add, "r");
 	if (fp == NULL) {
-    	printf("File not found!\n");
+    	printf("Could not open file");
+		return 0;
 	} else {
     	while (!feof(fp)) {
         	fscanf(fp,"%s%*[^\n]",word);
@@ -44,19 +45,19 @@ void firstWord(char* add){
 	fclose(fp);
 }
 void highRepeat(char *add){
-	FILE *file;
+	FILE *fp;
 	char ch, *line;
 	size_t len = 0, read;
 	char words[1000][1000], word[20];
 	int i = 0, j, k, maxCount = 0, count;
-	file = fopen(add,"r");
+	fp = fopen(add,"r");
 
-	if (file == NULL){
-		printf("File not found");
-		exit(EXIT_FAILURE);
+	if (fp == NULL){
+		printf("Could not open file");
+		return 0;
 	}
 
-	while ((read = getline(&line, &len, file)) != -1) {
+	while ((read = getline(&line, &len, fp)) != -1) {
 
 		for(k=0; line[k]!='\0'; k++){
 			
@@ -85,13 +86,31 @@ void highRepeat(char *add){
 	}
 
 	printf("Most repeated word: %s", word);
-	fclose(file);
+	fclose(fp);
 }
 void rmSpace(){
 
 }
-void nonComment(){
-
+void nonComment(char* add){
+	int InComment = 0;
+    FILE *fp = fopen(add, "r");
+    if(!fp){
+        printf("Could not open file");
+		return 0;
+    }
+    int ch;
+    while((ch = fgetc(fp)) != EOF){
+        if(ch == '#'){
+            InComment = 1;
+        } else if (ch == '\n'){
+            InComment = 0;
+            fputc(ch, stdout);
+        }
+        else if(!InComment){
+            fputc(ch, stdout);
+        }
+    }
+    fclose(fp);
 }
 void lineCounter(char *add){
 	FILE *fp;
@@ -112,24 +131,24 @@ void lineCounter(char *add){
 
 }
 void tenLine(char* add){
-	FILE *myfile;
+	FILE *fp;
     char content[1000];
     int max = 0;
-    myfile = fopen(add, "r");
-    if (myfile == NULL){
-        printf("Cannot open file \n");
-        return 0;
+    fp = fopen(add, "r");
+    if (fp == NULL){
+        printf("Could not open file");
+		return 0;
     }
-    fgets(content, 1000, myfile);
+    fgets(content, 1000, fp);
     while (content != NULL){
         max++;
         if (max > 10)
             break;
         printf("%s", content);
-        fgets(content, 1000, myfile);
+        fgets(content, 1000, fp);
     }
 
-    fclose(myfile);
+    fclose(fp);
     return 0;
 }
 
@@ -153,8 +172,8 @@ void execCommand(char** parsed){
 			highRepeat(parsed[1]);
 		} else if(strcmp(parsed[0],"rmSpace")){
 			
-		} else if(strcmp(parsed[0],"nonComment")){
-			
+		} else if(strcmp(parsed[0],"nc")){
+			nonComment(parsed[1]);
 		} else if(strcmp(parsed[0],"lc")){
 			lineCounter(parsed[1]);
 		} else if(strcmp(parsed[0],"tl")){
