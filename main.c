@@ -54,7 +54,7 @@ void highRepeat(char *add){
 
 	if (fp == NULL){
 		printf("Could not open file");
-		return 0;
+		return;
 	}
 
 	while ((read = getline(&line, &len, fp)) != -1) {
@@ -96,7 +96,7 @@ void nonComment(char* add){
     FILE *fp = fopen(add, "r");
     if(!fp){
         printf("Could not open file");
-		return 0;
+		return;
     }
     int ch;
     while((ch = fgetc(fp)) != EOF){
@@ -119,7 +119,7 @@ void lineCounter(char *add){
 	fp = fopen(add, "r");
 	if (fp == NULL){
 		printf("Could not open file");
-		return 0;
+		return;
 	}
 
 	for (c = getc(fp); c != EOF; c = getc(fp))
@@ -128,7 +128,6 @@ void lineCounter(char *add){
 
 	fclose(fp);
 	printf("The file has %d lines\n ", count);
-
 }
 void tenLine(char* add){
 	FILE *fp;
@@ -137,7 +136,7 @@ void tenLine(char* add){
     fp = fopen(add, "r");
     if (fp == NULL){
         printf("Could not open file");
-		return 0;
+		return;
     }
     fgets(content, 1000, fp);
     while (content != NULL){
@@ -149,7 +148,7 @@ void tenLine(char* add){
     }
 
     fclose(fp);
-    return 0;
+    return;
 }
 
 int checkCommand(){
