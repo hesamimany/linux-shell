@@ -111,8 +111,26 @@ void lineCounter(char *add){
 	printf("The file has %d lines\n ", count);
 
 }
-void tenLine(){
+void tenLine(char* add){
+	FILE *myfile;
+    char content[1000];
+    int max = 0;
+    myfile = fopen(add, "r");
+    if (myfile == NULL){
+        printf("Cannot open file \n");
+        return 0;
+    }
+    fgets(content, 1000, myfile);
+    while (content != NULL){
+        max++;
+        if (max > 10)
+            break;
+        printf("%s", content);
+        fgets(content, 1000, myfile);
+    }
 
+    fclose(myfile);
+    return 0;
 }
 
 int checkCommand(){
@@ -139,8 +157,8 @@ void execCommand(char** parsed){
 			
 		} else if(strcmp(parsed[0],"lc")){
 			lineCounter(parsed[1]);
-		} else if(strcmp(parsed[0],"tenLine")){
-
+		} else if(strcmp(parsed[0],"tl")){
+			tenLine(parsed[1]);
 		}
 		exit(0);
 	} else if(pid == 0 && check!=1){
