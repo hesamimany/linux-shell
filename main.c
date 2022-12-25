@@ -117,10 +117,10 @@ void execCommand(char** parsed){
 		return;
 	} else if(pid == 0 && check ==1){
 		
-		if(strcmp(parsed[0],"firstWord")){
-			
-		} else if(strcmp(parsed[0],"highRepeat")){
-
+		if(strcmp(parsed[0],"fw")){
+			firstWord(parsed[1]);
+		} else if(strcmp(parsed[0],"hr")){
+			highRepeat(parsed[1]);
 		} else if(strcmp(parsed[0],"rmSpace")){
 			
 		} else if(strcmp(parsed[0],"nonComment")){
