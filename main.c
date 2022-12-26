@@ -89,8 +89,22 @@ void highRepeat(char *add){
 	printf("Most repeated word: %s", word);
 	fclose(fp);
 }
-void rmSpace(){
+void rmSpace(char *add){
+	FILE *input;
+	char c,d;
+	char p;
 
+	input = fopen(add , "r");
+	while((p=getc(input))!=EOF){
+
+		if(p!= 32)
+		if(p!= 9)
+		if(p!= '\n')
+		if(p!= '/' && p!= '*')
+
+	fputc(p,stdout);
+	}
+	fclose(input);
 }
 void nonComment(char* add){
 	int InComment = 0;
