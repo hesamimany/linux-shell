@@ -7,15 +7,14 @@
 #include<readline/readline.h>
 #include<readline/history.h>
 
-int cdflag = 0;
-
 #define MAXSTRINGSIZE 1000
 #define MAXSTRINGARRAYSIZE 10
 
 void printDir(){
 	char cwd[1024];
 	getcwd(cwd, sizeof(cwd));
-	printf("\nDir: %s", cwd);
+	char* username = getenv("USER");
+	printf("\033[22;32m%s@\033[0m:\033[22;34m~%s\033[0m", username, cwd);
 }
 
 void parseSpace(char* str, char** parsed){
@@ -36,7 +35,7 @@ void firstWord(char* add){
 	fp = fopen(add, "r");
 	if (fp == NULL) {
     	printf("Could not open file");
-		return 0;
+		return;
 	} else {
     	while (!feof(fp)) {
         	fscanf(fp,"%s%*[^\n]",word);
@@ -154,37 +153,35 @@ void tenLine(char* add){
 }
 
 int checkCommand(char* command){ // return 1 if command is part of our commands
-	if(strcmp(command,"fw") || strcmp(command,"hr") || strcmp(command,"rs")
-	|| strcmp(command,"nc") || strcmp(command,"lc") || strcmp(command,"tl")
-	|| strcmp(command,"cd")){
+	if(!strcmp(command,"fw") || !strcmp(command,"hr") || !strcmp(command,"rs")
+	|| !strcmp(command,"nc") || !strcmp(command,"lc") || !strcmp(command,"tl")
+	|| !strcmp(command,"cd")){
 		return 1;
 	} else return 0;
 }
 
 void execCommand(char** parsed){
 	int check = checkCommand(parsed[0]);
-	
 	pid_t pid = fork();
-	printf("after fork, %d, %s ",pid,parsed[0]);
 	if (pid == -1) {
 		printf("\nFailed forking child..");
 		return;
 	} else if(pid == 0 && check){
 		
-		if(strcmp(parsed[0], "fw")){
+		if(!strcmp(parsed[0], "fw")){
 			firstWord(parsed[1]);
-		} else if(strcmp(parsed[0], "hr")){
+		} else if(!strcmp(parsed[0], "hr")){
 			highRepeat(parsed[1]);
-		} else if(strcmp(parsed[0], "rmSpace")){
+		} else if(!strcmp(parsed[0], "rmSpace")){
 			
-		} else if(strcmp(parsed[0], "nc")){
+		} else if(!strcmp(parsed[0], "nc")){
 			nonComment(parsed[1]);
-		} else if(strcmp(parsed[0], "lc")){
+		} else if(!strcmp(parsed[0], "lc")){
 			lineCounter(parsed[1]);
-		} else if(strcmp(parsed[0], "tl")){
+		} else if(!strcmp(parsed[0], "tl")){
 			tenLine(parsed[1]);
-		} else if(strcmp(parsed[0], "cd")){
-			cdflag = 1;
+		} else if(!strcmp(parsed[0], "cd")){
+			exit(100);
 		}
 		exit(0);
 	} else if (pid == 0 && !check){
@@ -194,18 +191,16 @@ void execCommand(char** parsed){
 		}
 		exit(0);
 	} else {
-		wait(NULL);
-		if(cdflag){
-			chdir(parsed[1]);
-			cdflag = 0;
-		}
+		int cdflag;
+		waitpid(pid, &cdflag, 0);
+		if (WIFEXITED(cdflag) && WEXITSTATUS(cdflag)==100) chdir(parsed[1]);
 		return;
 	}
 }
 
 int takeInput(char* str){
 	char* buf;
-	buf = readline("\n>>> ");
+	buf = readline("$ ");
 	if (strlen(buf) != 0) {
 		add_history(buf);
 		strcpy(str, buf);
@@ -229,6 +224,7 @@ int main(){
         if(takeInput(input)) continue;
 		processString(input,argsList);
     }
+	//tenLine("/home/hesam/Desktop/myFile.txt");
     
     return 0;
 }
