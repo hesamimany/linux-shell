@@ -186,8 +186,8 @@ void execCommand(char** parsed){
 			firstWord(parsed[1]);
 		} else if(!strcmp(parsed[0], "hr")){
 			highRepeat(parsed[1]);
-		} else if(!strcmp(parsed[0], "rmSpace")){
-			
+		} else if(!strcmp(parsed[0], "rs")){
+			rmSpace(parsed[1]);
 		} else if(!strcmp(parsed[0], "nc")){
 			nonComment(parsed[1]);
 		} else if(!strcmp(parsed[0], "lc")){
