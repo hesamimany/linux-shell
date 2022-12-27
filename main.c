@@ -1,23 +1,36 @@
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<sys/types.h>
-#include<sys/wait.h>
-#include<readline/readline.h>
-#include<readline/history.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <setjmp.h>
 
 #define MAXSTRINGSIZE 1000
 #define MAXSTRINGARRAYSIZE 10
 
-void printDir(){
+static sigjmp_buf env; //buffer that keeps program data like stack and ...
+
+typedef void (*sighandler_t)(int);
+
+sighandler_t signal(int signum, sighandler_t handler);
+
+void sigintHandler(int sig_num){ // jumps to the setjmp() location and returns 42 in env
+    longjmp(env, 42);
+}
+
+
+void printUsrDir(){ //prints username and current directory
 	char cwd[1024];
 	getcwd(cwd, sizeof(cwd));
 	char* username = getenv("USER");
 	printf("\033[22;32m%s@\033[0m:\033[22;34m~%s\033[0m", username, cwd);
 }
 
-void parseSpace(char* str, char** parsed){
+void parseSpace(char* str, char** parsed){ //parses str by space and put it in parsed
 	int i;
 	for (i = 0; i < MAXSTRINGARRAYSIZE; i++) {
 		parsed[i] = strsep(&str, " ");
@@ -29,7 +42,7 @@ void parseSpace(char* str, char** parsed){
 	}
 }
 
-void firstWord(char* add){
+void firstWord(char* add){ // function that opens file in the add address and prints first word in every line
 	FILE *fp;
 	char word[30];
 	fp = fopen(add, "r");
@@ -45,7 +58,7 @@ void firstWord(char* add){
 	}
 	fclose(fp);
 }
-void highRepeat(char *add){
+void highRepeat(char *add){ //prints the most repeated word in the file
 	FILE *fp;
 	char ch, *line;
 	size_t len = 0, read;
@@ -89,7 +102,7 @@ void highRepeat(char *add){
 	printf("Most repeated word: %s", word);
 	fclose(fp);
 }
-void rmSpace(char *add){
+void rmSpace(char *add){ //pritns a file with whitespace removed 
 	FILE *input;
 	char c,d;
 	char p;
@@ -127,7 +140,7 @@ void nonComment(char* add){
     }
     fclose(fp);
 }
-void lineCounter(char *add){
+void lineCounter(char *add){ // counts number of lines in a file
 	FILE *fp;
 	int count = 1;
 	char c;
@@ -144,7 +157,7 @@ void lineCounter(char *add){
 	fclose(fp);
 	printf("The file has %d lines\n ", count);
 }
-void tenLine(char* add){
+void tenLine(char* add){ // prints first ten line in a file
 	FILE *fp;
     char content[1000];
     int max = 0;
@@ -174,14 +187,15 @@ int checkCommand(char* command){ // return 1 if command is part of our commands
 	} else return 0;
 }
 
-void execCommand(char** parsed){
-	int check = checkCommand(parsed[0]);
-	pid_t pid = fork();
+void execCommand(char** parsed){ //executes the given command in parsed string array
+	int check = checkCommand(parsed[0]); //check if the command is ours or not
+	pid_t pid = fork(); //fork a child
+	
 	if (pid == -1) {
 		printf("\nFailed forking child..");
 		return;
-	} else if(pid == 0 && check){
-		
+
+	} else if(pid == 0 && check){ // our commands
 		if(!strcmp(parsed[0], "fw")){
 			firstWord(parsed[1]);
 		} else if(!strcmp(parsed[0], "hr")){
@@ -198,21 +212,21 @@ void execCommand(char** parsed){
 			exit(100);
 		}
 		exit(0);
-	} else if (pid == 0 && !check){
+	} else if (pid == 0 && !check){ // terminal commands
 		int status = execvp(parsed[0], parsed);
 		if (status < 0) {
 			printf("\nCould not execute command..");
 		}
 		exit(0);
-	} else {
+	} else { //parent waits here
 		int cdflag;
 		waitpid(pid, &cdflag, 0);
-		if (WIFEXITED(cdflag) && WEXITSTATUS(cdflag)==100) chdir(parsed[1]);
+		if (WIFEXITED(cdflag) && WEXITSTATUS(cdflag)==100) chdir(parsed[1]); // runs if we have cd command
 		return;
 	}
 }
 
-int takeInput(char* str){
+int takeInput(char* str){ // read a line from user
 	char* buf;
 	buf = readline("$ ");
 	if (strlen(buf) != 0) {
@@ -224,21 +238,26 @@ int takeInput(char* str){
 	}
 }
 
-int processString(char* string, char** parsedString){
+int processString(char* string, char** parsedString){ // process given line
 	parseSpace(string,parsedString);
 	execCommand(parsedString);
 }
 
 int main(){
 
-    char input[MAXSTRINGSIZE], *argsList[MAXSTRINGARRAYSIZE];
+    char input[MAXSTRINGSIZE], *argsList[MAXSTRINGARRAYSIZE]; // input is a string that keeps the one lie command and argslist is the parsed input by space
 
-    while (1){
-		printDir();
-        if(takeInput(input)) continue;
-		processString(input,argsList);
+	signal(SIGINT, sigintHandler); // calls sigintHandler() when ctrl + c is pressed
+
+    while (1){ // inf loop
+		if (sigsetjmp(env, 1) == 42) {
+            printf("\n");
+        }
+
+		printUsrDir(); //prints the current directory and username
+        if(takeInput(input)) continue; // read a line
+		processString(input,argsList); // pass the read line for process
     }
-	//tenLine("/home/hesam/Desktop/myFile.txt");
     
     return 0;
 }
