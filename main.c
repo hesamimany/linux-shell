@@ -27,7 +27,8 @@ void printUsrDir(){ //prints username and current directory
 	char cwd[1024];
 	getcwd(cwd, sizeof(cwd));
 	char* username = getenv("USER");
-	printf("\033[22;32m%s@\033[0m:\033[22;34m~%s\033[0m", username, cwd);
+	printf("\033[22;32m%s@\033[0m:\033[22;34m~%s\033[0m\n", username, cwd);
+	//printf("%s@:~%s", username, cwd);
 }
 
 void parseSpace(char* str, char** parsed){ //parses str by space and put it in parsed
@@ -47,7 +48,7 @@ void firstWord(char* add){ // function that opens file in the add address and pr
 	char word[30];
 	fp = fopen(add, "r");
 	if (fp == NULL) {
-    	printf("Could not open file");
+    	fprintf(stderr, "Could not open file\n");
 		return;
 	} else {
     	while (!feof(fp)) {
@@ -67,7 +68,7 @@ void highRepeat(char *add){ //prints the most repeated word in the file
 	fp = fopen(add,"r");
 
 	if (fp == NULL){
-		printf("Could not open file");
+		fprintf(stderr, "Could not open file\n");
 		return;
 	}
 
@@ -103,27 +104,29 @@ void highRepeat(char *add){ //prints the most repeated word in the file
 	fclose(fp);
 }
 void rmSpace(char *add){ //pritns a file with whitespace removed 
-	FILE *input;
+	FILE *fp;
 	char c,d;
 	char p;
 
-	input = fopen(add , "r");
-	while((p=getc(input))!=EOF){
-
+	fp = fopen(add , "r");
+	if(!fp){
+        fprintf(stderr, "Could not open file\n");
+		return;
+    }
+	while((p=getc(fp))!=EOF){
 		if(p!= 32)
-		if(p!= 9)
-		if(p!= '\n')
-		if(p!= '/' && p!= '*')
-
-	fputc(p,stdout);
+			if(p!= 9)
+				if(p!= '\n')
+					if(p!= '/' && p!= '*')
+						fputc(p,stdout);
 	}
-	fclose(input);
+	fclose(fp);
 }
 void nonComment(char* add){
 	int InComment = 0;
     FILE *fp = fopen(add, "r");
     if(!fp){
-        printf("Could not open file");
+        fprintf(stderr, "Could not open file\n");
 		return;
     }
     int ch;
@@ -146,7 +149,7 @@ void lineCounter(char *add){ // counts number of lines in a file
 	char c;
 	fp = fopen(add, "r");
 	if (fp == NULL){
-		printf("Could not open file");
+		fprintf(stderr, "Could not open file\n");
 		return;
 	}
 
@@ -163,7 +166,7 @@ void tenLine(char* add){ // prints first ten line in a file
     int max = 0;
     fp = fopen(add, "r");
     if (fp == NULL){
-        printf("Could not open file");
+        fprintf(stderr, "Could not open file\n");
 		return;
     }
     fgets(content, 1000, fp);
@@ -182,7 +185,7 @@ void tenLine(char* add){ // prints first ten line in a file
 int checkCommand(char* command){ // return 1 if command is part of our commands
 	if(!strcmp(command,"fw") || !strcmp(command,"hr") || !strcmp(command,"rs")
 	|| !strcmp(command,"nc") || !strcmp(command,"lc") || !strcmp(command,"tl")
-	|| !strcmp(command,"cd")){
+	|| !strcmp(command,"cd") || !strcmp(command,"exit")){
 		return 1;
 	} else return 0;
 }
@@ -192,7 +195,7 @@ void execCommand(char** parsed){ //executes the given command in parsed string a
 	pid_t pid = fork(); //fork a child
 	
 	if (pid == -1) {
-		printf("\nFailed forking child..");
+		fprintf(stderr, "Failed forking child..\n");
 		return;
 
 	} else if(pid == 0 && check){ // our commands
@@ -210,18 +213,24 @@ void execCommand(char** parsed){ //executes the given command in parsed string a
 			tenLine(parsed[1]);
 		} else if(!strcmp(parsed[0], "cd")){
 			exit(100);
+		} else if(!strcmp(parsed[0], "exit")){
+			exit(101);
 		}
 		exit(0);
 	} else if (pid == 0 && !check){ // terminal commands
 		int status = execvp(parsed[0], parsed);
 		if (status < 0) {
-			printf("\nCould not execute command..");
+			fprintf(stderr, "Could not execute command..\n");
 		}
 		exit(0);
 	} else { //parent waits here
 		int cdflag;
 		waitpid(pid, &cdflag, 0);
 		if (WIFEXITED(cdflag) && WEXITSTATUS(cdflag)==100) chdir(parsed[1]); // runs if we have cd command
+		if (WIFEXITED(cdflag) && WEXITSTATUS(cdflag)==101){
+			write_history("./history.txt");
+			exit(0);
+		} // runs if we enter exit command
 		return;
 	}
 }
@@ -230,7 +239,8 @@ int takeInput(char* str){ // read a line from user
 	char* buf;
 	buf = readline("$ ");
 	if (strlen(buf) != 0) {
-		add_history(buf);
+		add_history(buf); // add entered command to history
+		write_history("./history.txt"); // write entered commands to file
 		strcpy(str, buf);
 		return 0;
 	} else {
@@ -248,9 +258,10 @@ int main(){
     char input[MAXSTRINGSIZE], *argsList[MAXSTRINGARRAYSIZE]; // input is a string that keeps the one lie command and argslist is the parsed input by space
 
 	signal(SIGINT, sigintHandler); // calls sigintHandler() when ctrl + c is pressed
-
+	system("clear"); // clears terminal
+	read_history("./history.txt"); //raed history from file
     while (1){ // inf loop
-		if (sigsetjmp(env, 1) == 42) {
+		if (sigsetjmp(env, 1) == 42) { // jump here whenever ctrl + c is pressed
             printf("\n");
         }
 
