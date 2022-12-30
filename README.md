@@ -32,7 +32,7 @@ My own commands
 ### firstWord()
 
 ```bash
-fw fileadd
+fw fileaddress
 ```
 
 Prints first word of every line in the given file
@@ -40,15 +40,23 @@ Prints first word of every line in the given file
 ### highRepeat()
 
 ```bash
-hr fileadd
+hr fileaddress
 ```
 
 Prints the most repeated word in the given file
 
+### removeSpace()
+
+```bash
+rs fileaddress
+```
+
+Removes whitespase from file
+
 ### nonComment()
 
 ```bash
-nc fileadd
+nc fileaddress
 ```
 
 Prints lines which do not start with # in the given file
@@ -56,7 +64,7 @@ Prints lines which do not start with # in the given file
 ### lineCounter()
 
 ```bash
-lc fileadd
+lc fileaddress
 ```
 
 Counts number of lines in the given file
@@ -64,10 +72,22 @@ Counts number of lines in the given file
 ### tenLine()
 
 ```bash
-tl fileadd
+tl fileaddress
 ```
 
 Prints first ten line in the given file
+
+Use following command to close the programm because you can not use ctrl + c to terminate the bash (signal handling)
+
+```bash
+exit
+``` 
+
+You can see command instruction by using follosing command
+
+```bash
+help
+```
 
 ## Authors
 
