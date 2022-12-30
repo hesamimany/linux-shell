@@ -31,6 +31,10 @@ void printUsrDir(){ //prints username and current directory
 	//printf("%s@:~%s", username, cwd);
 }
 
+void help(){
+	printf("linux bash 1.0\ncommands: all linux supported commands and:\nPrints first word of every line in the given file\n\tfw fileaddress\n\nPrints the most repeated word in the given file\n\thr fileaddress\n\nRemoves whitespase from file\n\trm fileaddress\n\nPrints lines which do not start with # in the given file\n\tnc fileaddress\n\nCounts number of lines in the given file\n\tlc fileaddress\n\nPrints first ten line in the given file\n\ttl fileaddress\n\nClose the programm\n\texit\n");
+}
+
 void parseSpace(char* str, char** parsed){ //parses str by space and put it in parsed
 	int i;
 	for (i = 0; i < MAXSTRINGARRAYSIZE; i++) {
@@ -185,7 +189,7 @@ void tenLine(char* add){ // prints first ten line in a file
 int checkCommand(char* command){ // return 1 if command is part of our commands
 	if(!strcmp(command,"fw") || !strcmp(command,"hr") || !strcmp(command,"rs")
 	|| !strcmp(command,"nc") || !strcmp(command,"lc") || !strcmp(command,"tl")
-	|| !strcmp(command,"cd") || !strcmp(command,"exit")){
+	|| !strcmp(command,"cd") || !strcmp(command,"exit") || !strcmp(command,"help")){
 		return 1;
 	} else return 0;
 }
@@ -215,6 +219,8 @@ void execCommand(char** parsed){ //executes the given command in parsed string a
 			exit(100);
 		} else if(!strcmp(parsed[0], "exit")){
 			exit(101);
+		} else if(!strcmp(parsed[0],"help")){
+			help();
 		}
 		exit(0);
 	} else if (pid == 0 && !check){ // terminal commands
@@ -259,6 +265,7 @@ int main(){
 
 	signal(SIGINT, sigintHandler); // calls sigintHandler() when ctrl + c is pressed
 	system("clear"); // clears terminal
+	printf("Hello, use help command for more info\n");
 	read_history("./history.txt"); //raed history from file
     while (1){ // inf loop
 		if (sigsetjmp(env, 1) == 42) { // jump here whenever ctrl + c is pressed
